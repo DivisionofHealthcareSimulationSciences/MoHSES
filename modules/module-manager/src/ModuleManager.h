@@ -26,7 +26,7 @@ namespace AMM {
 
 
     public:
-        ModuleManager(std::string dds_config_path = "./");
+        ModuleManager(std::string dds_config_path = "../share/mohses/config");
 
         ~ModuleManager();
 

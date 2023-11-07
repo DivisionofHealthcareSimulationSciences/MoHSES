@@ -16,7 +16,7 @@ namespace AMM {
     ModuleManager::ModuleManager(std::string dds_config_path) {
          std::string resource_path = dds_config_path;
          if ( !std::filesystem::exists( resource_path + module_manager_amm )){
-           resource_path += "/config";
+           resource_path += "config";
          }
          m_mgr = new DDSManager<ModuleManager>( resource_path + module_manager_amm );
          m_DDS_Configuration = Utility::read_file_to_string( resource_path + module_manager_configuration );
