@@ -50,8 +50,12 @@ find_package(Python QUIET)
 #Add Triple Dection as needed
 if ( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"  AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
  set(triple "x86_64-linux-gnu")
-elseif( CMAKE_SYSTEM_PROCESSOR STREQUAL "armv8" )
+elseif( CMAKE_SYSTEM_PROCESSOR STREQUAL "armv8" OR MAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" )
  set(triple"aarch64-linux-gnu")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+ set(triple"unknown-linux-gnu")
+else()
+ set(triple"unknown-unknown-gnu")
 endif()
 
 string(REPLACE ";" "\;" pp "${CMAKE_PREFIX_PATH}")
@@ -72,9 +76,9 @@ if (TARGET create_distribution_bundle)
           ${Python_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
            $<$<TARGET_EXISTS:mohses_module_manager>:$<TARGET_FILE_DIR:mohses_module_manager>/$<TARGET_FILE_NAME:mohses_module_manager>>
-          --hints ${triple}
-          --dirs ${pp}
-          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          --hints \"${triple}\"
+          --dirs \"${pp}\"
+          --outdir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
           )
       "
       )
@@ -90,9 +94,9 @@ if (TARGET create_distribution_bundle)
           ${Python_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
            $<$<TARGET_EXISTS:mohses_physiology_manager>:$<TARGET_FILE_DIR:mohses_physiology_manager>/$<TARGET_FILE_NAME:mohses_physiology_manager>>
-          --hints ${triple}
-          --dirs ${pp}
-          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          --hints \"${triple}\"
+          --dirs \"${pp}\"
+          --outdir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
           )
       "
       )
@@ -108,9 +112,9 @@ if (TARGET create_distribution_bundle)
           ${Python_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
            $<$<TARGET_EXISTS:mohses_rest_adapter>:$<TARGET_FILE_DIR:mohses_rest_adapter>/$<TARGET_FILE_NAME:mohses_rest_adapter>>
-          --hints ${triple}
-          --dirs ${pp}
-          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          --hints \"${triple}\"
+          --dirs \"${pp}\"
+          --outdir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
           )
       "
       )
@@ -126,9 +130,9 @@ if (TARGET create_distribution_bundle)
           ${Python_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
            $<$<TARGET_EXISTS:mohses_simulation_manager>:$<TARGET_FILE_DIR:mohses_simulation_manager>/$<TARGET_FILE_NAME:mohses_simulation_manager>>
-          --hints ${triple}
-          --dirs ${pp}
-          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          --hints \"${triple}\"
+          --dirs \"${pp}\"
+          --outdir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
           )
       "
       )
@@ -144,9 +148,9 @@ if (TARGET create_distribution_bundle)
           ${Python_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
            $<$<TARGET_EXISTS:mohses_tcp_bridge>:$<TARGET_FILE_DIR:mohses_tcp_bridge>/$<TARGET_FILE_NAME:mohses_tcp_bridge>>
-          --hints ${triple}
-          --dirs ${pp}
-          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          --hints \"${triple}\"
+          --dirs \"${pp}\"
+          --outdir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
           )
       "
       )
