@@ -6,7 +6,7 @@ It includes all the modules needed to run a MoHSES simulation as well as the `tc
 
 ## Requirments
 
-Mohses is an open-source multiplatform library, but modules that depend on pistache are not avaliable on non nix platforms.  The following develoment tools are required to get started.
+MoHSES is an open-source multiplatform library, but modules that depend on pistache are not avaliable on non nix platforms.  The following develoment tools are required to get started.
 
 | Tool | Version | Website|
 |------|---------|--------|
@@ -16,7 +16,7 @@ Mohses is an open-source multiplatform library, but modules that depend on pista
 
 ### Thirdparty Libraries
 
-Mohses depends on several opensouce libraries which act as thirdparty dependencies.  Our build system includes a method for pulling and downloading these libraries if you must build them from source, but often installing them through yoru systems package system will be preferred. 
+MoHSES depends on several opensouce libraries which act as thirdparty dependencies.  Our build system includes a method for pulling and downloading these libraries if you must build them from source, but often installing them through yoru systems package system will be preferred. 
 
 |  Library | Version | Source | System Preferred | Note    |
 |----------|---------|--------|---------------|---------|
@@ -36,8 +36,8 @@ Mohses depends on several opensouce libraries which act as thirdparty dependenci
 
 ## Setting up a build environment
 
-Mohses can be built on windows and macos, but its primarly supported on debian 
-base distributions.  If you need simple explanation of our build system skip to [Building Mohses]
+MoHSES can be built on windows and macos, but its primarly supported on debian 
+base distributions.  If you need simple explanation of our build system skip to [Building MoHSES]
 
 ## Ubuntu 11
 
@@ -45,13 +45,17 @@ base distributions.  If you need simple explanation of our build system skip to 
 
 ```bash
     $ sudo apt install git build-essential ninja-build meson xsdcxx cmake-curses-gui
-    $ git clone https://github.com/StevenAWhite/Mohses_Refactor Mohses
-    $ mkdir -p Mohses/build
+    $ git clone https://github.com/DivisionofHealthcareSimulationSciences/MoHSES.git
+    $ mkdir -p /home/mohses/MoHSES/build
 
 ```
 
 This will install gcc, g++, ninja, meson, and cmake.  You can build mohses against clang
 using clang, but that is outside of scope these instructions.  
+
+Now we need to decide how to build the thirdparty libraries that MoHSES depends on. This documentation covers two 
+options. In option 1 we will use the MoHSES build system to provide as much of the infrastructure as possible. In 
+option 2 we will instead use apt to install the bulk of the utilities. Both options are equially viable.
 
 ### 2) Option 1: Using MOHSES_FETCH_THIRDPARTY=ON 
 
@@ -66,19 +70,19 @@ above mentioned third party libraries and install them in the users home directo
 
 ```bash
     $ sudo apt install libssl-dev libboost-all-dev libz-dev
-    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/amm/usr/ \
+    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/mohses/usr/ \
                      -D MOHSES_FETCH_THIRDPARTY=ON  \
-                     -B Mohses/build \
-                     -S Mohses/
-   $ cmake --build Mohses/build 
+                     -B /home/mohses/MoHSES/build \
+                     -S /home/mohses/MoHSES/
+   $ cmake --build /home/mohses/MoHSES/build 
 ```
 Note that the underlying Function ExternalProject_Add automatically installs packages in the value of
-CMAKE_INSTALL_PREFIX so no install target needs to be called in this example check /home/amm/usr to view
+CMAKE_INSTALL_PREFIX so no install target needs to be called in this example check /home/mohses/usr to view
 the additonal dependencies. 
 
 ### 3) Option 2: Apt base dependency installs
 
-Mohses has a very specific depency for fastdds and biogears. In this example we install all
+MoHSES has a very specific depency for fastdds and biogears. In this example we install all
 but FastCDR/FASTDDS and BioGears using apt. Then use MOHSES_FETCH_THIRDPARTY to simplify the building of
 BioGears and FastDDS.
 
@@ -87,33 +91,38 @@ BioGears and FastDDS.
     $ sudo apt install libtinyxml2-dev libfoonathan-memory-dev \
                        libsqlite3-dev rapidjson-dev \
                         libxerces-c-dev libeigen3-dev
-    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/amm/usr/ \
+    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/mohses/usr/ \
                      -D MOHSES_FETCH_THIRDPARTY=ON  \
-                     -B Mohses/build \
-                     -S Mohses
-    $ cmake --build Mohses/build
+                     -B /home/mohses/MoHSES/build \
+                     -S /home/mohses/MoHSES
+    $ cmake --build /home/mohses/MoHSES/build
 ```
 
 If you wanted to build FastCDR, FastDDS, Pistache, BioGears yourself. You would simply set the 
 CMAKE_PREFIX_PATH variable to include the INSTALL_ROOT of the installations. For example if a previous
-user had placed the dependecies in `/home/amm/usr` passing `-D CMAKE_PREFIX_PATH=/home/amm/usr` to the cmake
-configuration would allow it to find all the dependcies.  For cross compilation set `-D CMAKE_FIND_ROOT_PATH=/home/amm/cross-sysroot`
-instead assuming /home/amm/cross-sysroot is the location of the cross-compiled dependencies. You can use `CMAKE_TOOLCHAIN_FILE` 
+user had placed the dependecies in `/home/mohses/usr` passing `-D CMAKE_PREFIX_PATH=/home/amm/usr` to the cmake
+configuration would allow it to find all the dependcies.  For cross compilation set `-D CMAKE_FIND_ROOT_PATH=/home/mohses/cross-sysroot`
+instead assuming /home/mohses/cross-sysroot is the location of the cross-compiled dependencies. You can use `CMAKE_TOOLCHAIN_FILE` 
 when `MOHSES_FETCH_THIRDPARTY=ON` to instruct CMAKE to cross compile all of the dependencies and install them in your
 `CMAKE_INSTALL_PREFIX`
 
-### 4) Building Mohses Libraries
+### 4) Building MoHSES Libraries
 
 We can reuse the previous build directory for this step, but we need to disable `MOHSES_FETCH_THIRDPARTY`.
 We can also choose to install our MOHSES components in a different installation directory if we choose.
-In this example we will install mohses in `/home/amm/mohses`
+In this example we will install mohses in `/home/mohses/mohses_install`.  If you have been following these directions you will need to pass
+CMake the CMAKE_PREFIX_PATH variable with the location of the CMAKE_INSTALL_PREFIX used to build the thirdparty libraries. If you do not do this
+you will receive errors about missing thirdparty packages. CMAKE_PREFIX_PATH can include multiple locations for searching if you have spread your 
+thirdparty installs across multiple roots. Use a : to seperate directories and for / for all paths even if you are on windows.
 
 ```bash
-    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/amm/mohses/ \
+    $ cmake -G Ninja 
+                     -D CMAKE_PREFIX_PATH=/home/mohses/usr/
+                     -D CMAKE_INSTALL_PREFIX=/home/mohses/mohses_install/
                      -D MOHSES_FETCH_THIRDPARTY=OFF  \
-                     -B Mohses/build \
-                     -S Mohses
-    $ cmake --build Mohses/build
+                     -B /home/mohses/MoHSES/build \
+                     -S /home/mohses/MoHSES
+    $ cmake --build /home/mohses/MoHSES/build
 ```
 
 ## Cross Compilation
@@ -159,22 +168,22 @@ overview of cross-compiling with CMake. If you have a specific use case such as 
 ### 3) Building Remaining Dependencies
 
 ```bash
-    $ git clone git@github.com:StevenAWhite/Mohses_Refactor.git Mohses
-    $ mkdir -p Mohses/build-aarch64-linux-gnu
-    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/amm/mohses/aarch64-linux-gnu \
-                     -D CMAKE_TOOLCHAIN_FILE=Mohses/cmake/toolchains/aarch64-linux-gnu.cmake
+    $ git clone git@github.com:StevenAWhite/MoHSES_Refactor.git MoHSES
+    $ mkdir -p /home/mohses/MoHSES/build-aarch64-linux-gnu
+    $ cmake -G Ninja -D CMAKE_INSTALL_PREFIX=/home/mohses/aarch64-linux-gnu \
+                     -D CMAKE_TOOLCHAIN_FILE=/home/mohses/MoHSES/cmake/toolchains/aarch64-linux-gnu.cmake
                      -D MOHSES_FETCH_THIRDPARTY=OFF  \
-                     -B Mohses/build-aarch64-linux-gnu \
-                     -S Mohses
-    $ cmake --build Mohses/build-aarch64-linux-gnu
-    $ cmake --build Mohses/build-aarch64-linux-gnu --target install
+                     -B /home/mohses/MoHSES/build-aarch64-linux-gnu \
+                     -S /home/mohses/MoHSES
+    $ cmake --build /home/mohses/MoHSES/build-aarch64-linux-gnu
+    $ cmake --build /home/mohses/MoHSES/build-aarch64-linux-gnu --target install
 ```
 
 
-## Installing Mohses as an Administrator
+## Installing MoHSES as an Administrator
 
 
 
-## Running Mohses System
+## Running MoHSES System
 
-## Migrating from AMM 1.2.1 to Mohses 2.0
+## Migrating from AMM 1.2.1 to MoHSES 2.0
