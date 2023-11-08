@@ -52,7 +52,7 @@ if ( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"  AND CMAKE_SYSTEM_NAME STREQUAL "L
  set(triple "x86_64-linux-gnu")
 elseif( CMAKE_SYSTEM_PROCESSOR STREQUAL "armv8" OR MAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" )
  set(triple"aarch64-linux-gnu")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
  set(triple"unknown-linux-gnu")
 else()
  set(triple"unknown-unknown-gnu")
