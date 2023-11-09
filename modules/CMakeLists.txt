@@ -13,7 +13,7 @@ if(NOT MOHSES_RESOURCE_DIR)
 endif()
 
 if(NOT MOHSES_RUNTIME_DIR)
-  set(MOHSES_RUNTIME_DIR "./")
+  set(MOHSES_RUNTIME_DIR "/tmp/")
   if(NOT WIN32)
      if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
         set(MOHSES_RUNTIME_DIR "/opt/mohses/"   )

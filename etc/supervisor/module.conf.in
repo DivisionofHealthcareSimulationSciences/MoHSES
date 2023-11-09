@@ -8,4 +8,4 @@ numprocs=1
 user=@MOHSES_USERNAME@
 redirect_stderr=true
 stdout_logfile=@MOHSES_LOGGING_DIR@/@MODULE_TARGET_NAME@.log
-
+environment=LD_LIBRARY_PATH=@CMAKE_INSTALL_PREFIX@/bin:@CMAKE_INSTALL_PREFIX@/lib
