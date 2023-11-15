@@ -182,8 +182,27 @@ overview of cross-compiling with CMake. If you have a specific use case such as 
 
 ## Installing MoHSES as an Administrator
 
+You can install MoHSES locally or as a system process. CMake provides an install target which will move files according the CMAKE_INSTALL_PREFIX.  CMake conciders the PREFIXES /usr/local and /usr to be SYSTEM installs. In System installs the LOG, RESOURCE, and BIN direcotries are different then local installs. A default ADMIN install will assume the following
 
+`
+| CONFIGURABLE VARIABLES | SYSTEM DEFAULT | LOCAL DEFAULT|
+|------------------------|----------------|--------------|
+|MOHSES_RESOURCE_DIR     | /opt/mohses    | ${CMAKE_INSTALL_PREFIX}/share/mohses |
+|MOHSES_RUNTIME_DIR      | /opt/mohses    | /tmp/ |
+|MOHSES_LOGGING_DIR      | /var/log/mohses | ${CMAKE_INSTALL_PREFIX}/logs |
+|MOHSES_SUPERVISOR_DIR   | /etc/supervisor/conf.d | {CMAKE_INSTALL_PREFIX}/share/mohses/supervisor/ |
+|MOHSES_USERNAME         | mohses | mohses |
+`
+
+All of these variabels can be overridden  by adding them to the CMAKE CACHE. For example
+`cmake -D MOHSES_USERNAME uw` would allow you to change the default username.  As CMake will only copy files in to place under the user who runs the install target. The adminstrator running the installation will need to create username, groups, and change file permissions in accordance to there goals.
+
+SUPERVISOR.D scripts are provided by MoHSES and installed in the MOHSES_SUPERVISOR_DIR. They are configured to match the values of these variables but could be modified post installation. Once installed use supervisorctl to configure each service
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps
 
 ## Running MoHSES System
+
+
 
 ## Migrating from AMM 1.2.1 to MoHSES 2.0
