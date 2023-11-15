@@ -81,6 +81,9 @@ if (TARGET create_distribution_bundle)
             FILES ${CMAKE_SOURCE_DIR}/etc/supervisor/mohses.conf
             DESTINATION share/mohses/supervisor
           ) 
+  install(CODE
+          "  file(MAKE_DIRECTORY ${MOHSES_LOGGING_DIR})  "
+         )
   if(TARGET  mohses_module_manager ) 
     add_dependencies(create_distribution_bundle mohses_module_manager)
     if ( Python_FOUND)
