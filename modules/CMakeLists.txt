@@ -70,7 +70,11 @@ else()
  set(triple"unknown-unknown-gnu")
 endif()
 
-string(REPLACE ";" "\;" pp "${CMAKE_PREFIX_PATH}")
+if(CMAKE_CROSSCOMPILING)
+  string(REPLACE ";" "\;" pp "${CMAKE_FIND_ROOT_PATH}")
+else()
+  string(REPLACE ";" "\;" pp "${CMAKE_PREFIX_PATH}")
+endif()
 if (TARGET create_distribution_bundle)
   ###############################################################################
   # Add modules to the dep list for our fixup target
