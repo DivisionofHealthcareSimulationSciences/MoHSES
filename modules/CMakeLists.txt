@@ -75,6 +75,11 @@ if(CMAKE_CROSSCOMPILING)
 else()
   string(REPLACE ";" "\;" pp "${CMAKE_PREFIX_PATH}")
 endif()
+
+if ( NOT pp )
+  set(pp ${CMAKE_INSTALL_PREFIX} )
+endif()
+
 if (TARGET create_distribution_bundle)
   ###############################################################################
   # Add modules to the dep list for our fixup target
