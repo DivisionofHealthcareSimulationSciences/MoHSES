@@ -77,7 +77,10 @@ if (TARGET create_distribution_bundle)
   # You likely need to add on project to stage for every executable you would like
   # to stage (AKA move dep DLLs to the run folder for debugging.
   ################################################################################
- 
+  install(
+            FILES ${CMAKE_SOURCE_DIR}/etc/supervisor/mohses.conf
+            DESTINATION share/mohses/supervisor
+          ) 
   if(TARGET  mohses_module_manager ) 
     add_dependencies(create_distribution_bundle mohses_module_manager)
     if ( Python_FOUND)
