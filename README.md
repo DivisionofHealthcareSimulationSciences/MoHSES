@@ -144,17 +144,17 @@ overview of cross-compiling with CMake. If you have a specific use case such as 
 ### 2) Installing third party dependencies
 
 ```bash
-    $ sudo apt install  libssl-dev:arm64 libz-dev:arm64 \
-                        libfoonathan-memory-dev:arm64 \ 
-                        libsqlite3-dev:arm64 rapidjson-dev:arm64 \
-                        libxerces-c-dev:arm64 libeigen3-dev:arm64 \
-                        libtinyxml2-dev:arm64 libboost-dev:arm64 \
-                        libboost-filesystem-dev:arm64 \
-                        libboost-serialization-dev:arm64 \
-                        libboost-program-options-dev:arm64 \
-                        libboost-thread-dev:arm64 \
-                        libboost-exception-dev:arm64 \
-                        libboost-container-dev:arm64
+   $ sudo apt install  libssl-dev:arm64 libz-dev:arm64
+   $ sudo apt install  libfoonathan-memory-dev:arm64 
+   $ sudo apt install  libsqlite3-dev:arm64 rapidjson-dev:arm64
+   $ sudo apt install  libxerces-c-dev:arm64 libeigen3-dev:arm64
+   $ sudo apt install  libtinyxml2-dev:arm64 libboost-dev:arm64
+   $ sudo apt install  libboost-filesystem-dev:arm64
+   $ sudo apt install  libboost-serialization-dev:arm64
+   $ sudo apt install  libboost-program-options-dev:arm64
+   $ sudo apt install  libboost-thread-dev:arm64
+   $ sudo apt install  libboost-exception-dev:arm64
+   $ sudo apt install  libboost-container-dev:arm64
    # Debian doesn't duplicate headers
    $ sudo ln -s  /usr/include/boost/ /usr/aarch64-linux-gnu/include/boost
    $ sudo ln -s  /usr/include/openssl/ /usr/aarch64-linux-gnu/include/openssl

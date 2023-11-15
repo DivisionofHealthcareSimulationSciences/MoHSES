@@ -2,7 +2,7 @@
 autostart=false
 autorestart=true
 directory=@MOHSES_RUNTIME_DIR@
-command=@CMAKE_INSTALL_PREFIX@/@MODULE_TARGET_NAME@ @MODULE_ARGUMENTS@
+command=@CMAKE_INSTALL_PREFIX@/bin/@MODULE_TARGET_NAME@ @MODULE_ARGUMENTS@
 priority=105
 numprocs=1
 user=@MOHSES_USERNAME@
