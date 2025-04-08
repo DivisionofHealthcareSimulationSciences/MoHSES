@@ -7,15 +7,10 @@
 
 #include <mohses/BaseLogger.h>
 
+#include <constants.h>
+
 using namespace std;
 using namespace sqlite;
-
-enum class ExecutionErrors{
-  NONE = 0,
-  FILESYSTEM,
-  ARGUMENTS,
-  UNKNOWN,
-};
 
 struct Configuration {
     bool closed = false;
@@ -24,8 +19,8 @@ struct Configuration {
     bool setup = false;
     bool wipe = false;
 
-    std::string runtime_directory= "";
-    std::string dds_directory = "./";
+    std::string runtime_directory{MOHSES_RUNTIME_DIR};
+    std::string dds_directory{MOHSES_RESOURCE_DIR};
 } config;
 /// Clears database tables.
 void WipeTables() {
@@ -170,8 +165,8 @@ int main(int argc, char *argv[]) {
         ("setup,s", bool_switch()->default_value(false), "setup")
         ("wipe,w", bool_switch()->default_value(false), "wipe")
         ("version,v", bool_switch()->default_value(false), "version")
-        ("configs", value<std::string>(), "Path to required resource files"),
-        ("directory","-C", value<std::string>(), "Path to required resource files");
+        ("configs", value<std::string>(), "Path to required resource files")
+        ("directory,-C", value<std::string>(), "Path to required resource files");
 
         options_description all_options;
         all_options.add(desc);

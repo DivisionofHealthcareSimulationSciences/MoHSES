@@ -1,6 +1,13 @@
 #include "BiogearsThread.h"
 
+#include <filesystem>
+
 using namespace biogears;
+
+/// This module's path to the config file.
+constexpr char const * physiology_manager_amm = "/pe_manager_amm.xml";
+constexpr char const * physiology_manager_configuration = "/pe_manager_configuration.xml";
+constexpr char const * physiology_manager_capabilities = "/pe_manager_capabilities.xml"; 
 
 namespace AMM {
 class EventHandler : public SEEventHandler {
@@ -92,11 +99,17 @@ std::map<std::string, double (BiogearsThread::*)()> BiogearsThread::nodePathTabl
  *
  * @param logFile biogears log file
  */
-BiogearsThread::BiogearsThread(const std::string& logFile, const std::string& biogears_runtime)
+BiogearsThread::BiogearsThread(const std::string& logFile, const std::string& mohses_resource_dir, const std::string& biogears_resources_dir)
 {
   try {
+    std::string resourcePath = mohses_resource_dir;
+    if ( !std::filesystem::exists( resourcePath + physiology_manager_amm )){
+      resourcePath += "/config";
+    }
 
-    m_pe = std::make_unique<BioGearsEngine>("biogears.log", biogears_runtime);
+    m_mgr = new DDSManager<BiogearsThread>( resourcePath + physiology_manager_amm );
+
+    m_pe = std::make_unique<BioGearsEngine>("biogears.log", biogears_resources_dir);
     bg = dynamic_cast<BioGears*>(m_pe.get());
   } catch (std::exception& e) {
     LOG_ERROR << "Error starting engine: " << e.what();

@@ -6,14 +6,8 @@
 #include <boost/program_options.hpp>
 #include <filesystem>
 
+#include <constants.h>
 using namespace AMM;
-
-enum class ExecutionErrors {
-  NONE = 0,
-  FILESYSTEM,
-  ARGUMENTS,
-  UNKNOWN,
-};
 
 struct Configuration {
   bool closed = false;
@@ -21,9 +15,9 @@ struct Configuration {
   bool autostart = false;
   bool logging = false;
 
-  std::string biogears_directory= "./";
-  std::string runtime_directory = "";
-  std::string dds_directory = "./";
+  std::string biogears_directory{ MOHSES_RESOURCE_DIR};
+  std::string runtime_directory { MOHSES_RUNTIME_DIR};
+  std::string dds_directory { MOHSES_RESOURCE_DIR };
 } config;
 
 void show_menu(AMM::PhysiologyEngineManager* pe)
@@ -162,7 +156,7 @@ int main(int argc, char* argv[])
     store(command_line_parser(argc, argv).options(all_options).run(), vm);
     notify(vm);
 
-    if (vm.count("help") || argc < 2) {
+    if (vm.count("help")) {
       std::cout << desc << std::endl;
       return static_cast<int>(ExecutionErrors::NONE);
     }

@@ -124,7 +124,7 @@ class EventHandler;
 
 class BiogearsThread {
 public:
-  explicit BiogearsThread(const std::string& stateFile, const std::string& biogears_runtime_dir);
+  explicit BiogearsThread(const std::string& stateFile, const std::string& mohses_resource_dir, const std::string& biogears_resource_dir);
 
   ~BiogearsThread();
 
@@ -503,8 +503,7 @@ protected:
   // AMM
   AMM::UUID m_uuid;
   std::string moduleName = "AMM_BioGearsThread";
-  std::string configFile = "config/pe_manager_amm.xml";
-  AMM::DDSManager<BiogearsThread>* m_mgr = new DDSManager<BiogearsThread>(configFile);
+  AMM::DDSManager<BiogearsThread>* m_mgr = nullptr;
 
   double thresh = 1.0;
 

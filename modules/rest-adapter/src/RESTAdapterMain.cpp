@@ -23,8 +23,9 @@
 #include <boost/process.hpp>
 #include <boost/program_options.hpp>
 
-
 #include "thirdparty/sqlite_modern_cpp.h"
+
+#include <constants.h>
 
 using namespace AMM;
 using namespace std::chrono;
@@ -34,25 +35,27 @@ using namespace eprosima;
 using namespace eprosima::fastrtps;
 using namespace sqlite;
 
-/// REST adapter port.
-int portNumber = 9080;
+struct Configuration {
+    bool daemonize = true;
+    bool discovery = true;
 
-/// REST threads.
-int thr = 2;
+    /// REST adapter port.
+    int portNumber = 9080;
+    
+    /// REST threads.
+    int thread_pool_size = 2;
+    
+    /// Hostname to connect to.
+    char hostname[HOST_NAME_MAX];
 
-/// Daemonize by default.
-int daemonize = 1;
+    std::string action_path = "Actions/";
+    std::string state_path = "./states/";
+    std::string patient_path = "./patients/";
+    std::string scenario_path = "./scenarios/";
 
-/// Default discovery.
-int discovery = 1;
-
-/// Hostname to connect to.
-char hostname[HOST_NAME_MAX];
-
-std::string action_path = "Actions/";
-std::string state_path = "./states/";
-std::string patient_path = "./patients/";
-std::string scenario_path = "./static/scenarios/";
+    std::string runtime_directory{MOHSES_RUNTIME_DIR};
+    std::string resource_path{MOHSES_RESOURCE_DIR};
+} config;
 
 std::mutex nds_mutex;
 std::map<std::string, double> nodeDataStorage;
@@ -498,7 +501,11 @@ public:
 };
 
 const std::string moduleName = "AMM_REST_Adapter";
-const std::string configFile = "config/rest_adapter_amm.xml";
+
+const std::string rest_adapter_amm= "/rest_adapter_amm.xml";
+const std::string rest_adapter_configuration= "/rest_adapter_configuration.xml";
+const std::string rest_adapter_capabilities= "/rest_adapter_capabilities.xml";
+
 DDSManager<RESTListener> *mgr;
 AMM::UUID m_uuid;
 
@@ -533,7 +540,7 @@ void PublishOperationalDescription() {
     od.serial_number("1.0.0");
     od.module_id(m_uuid);
     od.module_version("1.0.0");
-    const std::string capabilities = AMM::Utility::read_file_to_string("config/rest_adapter_capabilities.xml");
+    const std::string capabilities = AMM::Utility::read_file_to_string(config.resource_path + rest_adapter_capabilities);
     od.capabilities_schema(capabilities);
     od.description();
     mgr->WriteOperationalDescription(od);
@@ -690,9 +697,9 @@ public:
     explicit DDSEndpoint(Address addr)
             : httpEndpoint(std::make_shared<Http::Endpoint>(addr)) {}
 
-    void init(int thr = 2) {
+    void init(int thread_pool_size = 2) {
         auto opts = Http::Endpoint::options()
-                .threads(thr)
+                .threads(thread_pool_size)
                 .flags(Tcp::Options::ReuseAddr);
         httpEndpoint->init(opts);
         setupRoutes();
@@ -806,7 +813,7 @@ private:
 
         writer.StartObject();
         writer.Key("name");
-        writer.String(hostname);
+        writer.String(config.hostname);
         writer.Key("scenario");
         writer.String(scenario.c_str());
         writer.EndObject();
@@ -821,11 +828,11 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (std::filesystem::exists(state_path) && std::filesystem::is_directory(state_path)) {
-            std::filesystem::path p(state_path);
+        if (std::filesystem::exists(config.state_path) && std::filesystem::is_directory(config.state_path)) {
+            std::filesystem::path p(config.state_path);
             if (std::filesystem::is_directory(p)) {
                 std::vector<std::filesystem::path> paths(
-                        std::filesystem::directory_iterator{state_path}, std::filesystem::directory_iterator{}
+                        std::filesystem::directory_iterator{config.state_path}, std::filesystem::directory_iterator{}
                 );
                 std::sort(paths.begin(), paths.end());
                 for (auto const &this_path : paths) {
@@ -851,7 +858,7 @@ private:
         response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
         if (name != "StandardMale@0s.xml") {
             std::ostringstream deleteFile;
-            deleteFile << state_path << "/" << name;
+            deleteFile << config.state_path << "/" << name;
             std::filesystem::path deletePath(deleteFile.str().c_str());
             if (std::filesystem::exists(deletePath) && is_regular_file(deletePath)) {
                 LOG_INFO << "Deleting " << deletePath.string();
@@ -875,8 +882,8 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (std::filesystem::exists(scenario_path) && std::filesystem::is_directory(scenario_path)) {
-            std::filesystem::path p(scenario_path);
+        if (std::filesystem::exists(config.scenario_path) && std::filesystem::is_directory(config.scenario_path)) {
+            std::filesystem::path p(config.scenario_path);
             if (std::filesystem::is_directory(p)) {
                 std::filesystem::directory_iterator end_iter;
                 for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
@@ -905,8 +912,8 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (std::filesystem::exists(patient_path) && std::filesystem::is_directory(patient_path)) {
-            std::filesystem::path p(patient_path);
+        if (std::filesystem::exists(config.patient_path) && std::filesystem::is_directory(config.patient_path)) {
+            std::filesystem::path p(config.patient_path);
             if (std::filesystem::is_directory(p)) {
                 std::filesystem::directory_iterator end_iter;
                 for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
@@ -1003,8 +1010,8 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (std::filesystem::exists(action_path) && std::filesystem::is_directory(action_path)) {
-            std::filesystem::path p(action_path);
+        if (std::filesystem::exists(config.action_path) && std::filesystem::is_directory(config.action_path)) {
+            std::filesystem::path p(config.action_path);
             if (std::filesystem::is_directory(p)) {
                 std::filesystem::directory_iterator end_iter;
                 for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
@@ -1541,14 +1548,7 @@ private:
 };
 
 
-static void show_usage(const std::string &name) {
-        std::cerr << "Usage: " << name << " <option(s)>"
-         << "\nOptions:\n"
-         << "\t-h,--help\t\tShow this help message\n"
-         << std::endl;
-}
-
-Port port(static_cast<uint16_t>(portNumber));
+Port port(static_cast<uint16_t>(config.portNumber));
 Address addr(Ipv4::any(), port);
 DDSEndpoint server(addr);
 
@@ -1556,28 +1556,75 @@ int main(int argc, char *argv[]) {
     static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
     plog::init(plog::verbose, &consoleAppender);
 
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if ((arg == "-h") || (arg == "--help")) {
-            show_usage(argv[0]);
-            return 0;
-        }
+    using namespace boost::program_options;
+    std::string help_message;
+    try {
 
-        if (arg == "-d") {
-            daemonize = 1;
-        }
+      // Declare the supported options.
+      options_description desc("Allowed options");
+      desc.add_options() 
+        ("help,h", "produce help message")
+        ("daemon,d", bool_switch()->default_value(true), "[Not implemented] Run in daemon mode for service design." )
+        ("discovery", bool_switch()->default_value(true), "[Not implemented] Enable Net Discovery." )
+        ("version,v", bool_switch()->default_value(false), "version")
+        ("port", value<int>()->default_value(9080), "Server Port")
+        ("jobs", value<int>()->default_value(2), "Number of thread_pool jobs")
+        ("configs", value<std::string>(), "Path to required resource files")
+        ("directory,-C", value<std::string>(), "Path to required resource files");
 
-        if (arg == "-nodiscovery") {
-            discovery = 0;
-        }
+      options_description all_options;
+      all_options.add(desc);
+      variables_map vm;
+      store(command_line_parser(argc, argv).options(all_options).run(), vm);
+      notify(vm);
+
+      if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        return static_cast<int>(ExecutionErrors::NONE);
+      }
+
+      if (vm["version"].as<bool>()) {
+        //TODO: PROVIDE THIS AS A #DEFINE FROM CMAKE
+        std::cout << "v1.2.0" << std::endl;
+        return static_cast<int>(ExecutionErrors::NONE);
+      }
+
+      config.daemonize = vm["daemon"].as<bool>();
+      config.discovery = vm["discovery"].as<bool>();
+      config.portNumber = vm["port"].as<int>();
+      config.thread_pool_size = vm["jobs"].as<int>();
+
+      if (vm.count("configs")) {
+          config.resource_path= vm["configs"].as<std::string>();
+      }
+      if (vm.count("directory")) {
+          config.runtime_directory = vm["directory"].as<std::string>();
+          try {
+            std::filesystem::current_path(config.runtime_directory);
+          } catch ( std::filesystem::filesystem_error ) {
+               std::cerr << "Unable to change directory to " << config.runtime_directory                           << "given by option -C ";
+               exit(static_cast<int>(ExecutionErrors::FILESYSTEM));
+          }
+      }
+    } catch (boost::program_options::required_option /*e*/) {
+      std::cout << argv[0]  << ": " << help_message << std::endl;
+      return (static_cast<int>(ExecutionErrors::ARGUMENTS));
+    } catch (std::exception& e) {
+      std::cerr << argv[0]  << ": " << e.what() << std::endl;
+      return (static_cast<int>(ExecutionErrors::UNKNOWN));
     }
+
 
     std::string action;
 
     ResetLabs();
 
     RESTListener al;
-    mgr = new AMM::DDSManager<RESTListener>(configFile);
+    
+    if ( !std::filesystem::exists( config.resource_path+ rest_adapter_amm )){
+      config.resource_path+= "/config";
+    }
+    mgr = new AMM::DDSManager<RESTListener>(config.resource_path + rest_adapter_amm);
 
     mgr->InitializeCommand();
     mgr->InitializeSimulationControl();
@@ -1616,10 +1663,10 @@ int main(int argc, char *argv[]) {
 
     PublishOperationalDescription();
 
-    gethostname(hostname, HOST_NAME_MAX);
+    gethostname(config.hostname, HOST_NAME_MAX);
 
-    server.init(thr);
-    LOG_INFO << "Listening on *:" << portNumber;
+    server.init(config.thread_pool_size);
+    LOG_INFO << "Listening on *:" << config.portNumber;
 
     m_runThread = true;
 

@@ -24,7 +24,8 @@ namespace AMM {
         virtual ~PhysiologyEngineManager();
 
         BiogearsThread *m_pe;
-        std::string biogears_runtime;
+        std::string m_mohsesResourcesPath;
+        std::string m_biogearsRuntimePath;
         std::string stateFile;
         std::string patientFile;
         std::string scenarioFile;

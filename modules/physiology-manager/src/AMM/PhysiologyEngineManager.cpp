@@ -46,20 +46,20 @@ PhysiologyEngineManager::PhysiologyEngineManager(std::string dds_config_path, st
     }
   }
 
-  biogears_runtime = biogears_resource_path+"/";
+  m_biogearsRuntimePath = biogears_resource_path+"/";
   stateFile = "states/StandardMale@0s.xml";
   patientFile = "patients/StandardMale.xml";
 
-  std::string resource_path = dds_config_path;
-  if ( !std::filesystem::exists( resource_path + physiology_manager_amm )){
-    resource_path += "/config";
+  m_mohsesResourcesPath = dds_config_path;
+  if ( !std::filesystem::exists( m_mohsesResourcesPath + physiology_manager_amm )){
+    m_mohsesResourcesPath += "/config";
   }
 
-  std::cout << "biogears_resource_path=" << biogears_runtime + stateFile << std::endl;
-  std::cout << "dds_config_path=" << resource_path + physiology_manager_amm << std::endl;
-  m_mgr = new DDSManager<PhysiologyEngineManager>( resource_path + physiology_manager_amm );
-  m_DDS_Configuration = Utility::read_file_to_string( resource_path + physiology_manager_configuration );
-  m_DDS_Capabilities  = Utility::read_file_to_string( resource_path + physiology_manager_capabilities );
+  std::cout << "biogears_resource_path=" << m_biogearsRuntimePath << std::endl;
+  std::cout << "dds_config_path=" << m_mohsesResourcesPath << std::endl;
+  m_mgr = new DDSManager<PhysiologyEngineManager>( m_mohsesResourcesPath + physiology_manager_amm );
+  m_DDS_Configuration = Utility::read_file_to_string( m_mohsesResourcesPath + physiology_manager_configuration );
+  m_DDS_Capabilities  = Utility::read_file_to_string( m_mohsesResourcesPath + physiology_manager_capabilities );
  
   // Initialize everything we'll need to listen for 
   m_mgr->InitializeTick();
@@ -417,7 +417,7 @@ void PhysiologyEngineManager::InitializeBiogears()
   if (!running) {
     LOG_INFO << "Initializing Biogears thread";
     m_mutex.lock();
-    m_pe = new BiogearsThread("logs/biogears.log", biogears_runtime);
+    m_pe = new BiogearsThread("logs/biogears.log", m_mohsesResourcesPath, m_biogearsRuntimePath);
     m_mutex.unlock();
 
     if (m_pe == nullptr) {
@@ -932,7 +932,7 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
       LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
       std::string holdStateFile = stateFile;
       stateFile = "states/" + value.substr(loadPrefix.size()) + "." + stateFilePrefix;
-      std::ifstream infile(biogears_runtime+stateFile);
+      std::ifstream infile(m_biogearsRuntimePath+stateFile);
       if (!infile.good()) {
         LOG_ERROR << "State file does not exist: " << stateFile;
         stateFile = holdStateFile;
@@ -950,7 +950,7 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
       LOG_INFO << "Loading patient.  Setting patient file to " << value.substr(loadPatient.size());
       std::string holdPatientFile = patientFile;
       patientFile = "patients/" + value.substr(loadPatient.size()) + "." + patientFilePrefix;
-      std::ifstream infile(biogears_runtime+patientFile);
+      std::ifstream infile(m_biogearsRuntimePath+patientFile);
       if (!infile.good()) {
         LOG_ERROR << "Patient file does not exist: " << patientFile;
         patientFile = holdPatientFile;
@@ -968,7 +968,7 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
       LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
       scenarioFile = "Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
       LOG_INFO << "Scenario file is " << scenarioFile;
-      std::ifstream infile(biogears_runtime+scenarioFile);
+      std::ifstream infile(m_biogearsRuntimePath+scenarioFile);
       if (!infile.good()) {
         LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
       }
@@ -976,7 +976,7 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
 
       LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
       m_mutex.lock();
-      m_pe = new BiogearsThread("logs/biogears.log", biogears_runtime);
+      m_pe = new BiogearsThread("logs/biogears.log", m_mohsesResourcesPath, m_biogearsRuntimePath);
       m_mutex.unlock();
 
       if (m_pe == nullptr) {
@@ -1031,7 +1031,7 @@ void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration&
       LOG_INFO << "Loading state.  Setting state file to " << it->second;
       std::string holdStateFile = stateFile;
       stateFile = "states/" + it->second;
-      std::ifstream infile(biogears_runtime+stateFile);
+      std::ifstream infile(m_biogearsRuntimePath+stateFile);
       if (!infile.good()) {
         LOG_ERROR << "State file does not exist: " << stateFile;
         stateFile = holdStateFile;

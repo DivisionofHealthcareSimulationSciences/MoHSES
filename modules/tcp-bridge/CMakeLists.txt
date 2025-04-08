@@ -81,19 +81,21 @@ if (MOHSES_BUILD_TCP_BRIDGE)
                  CXX_STANDARD 17
     ) 
 
+    target_include_directories(mohses_tcp_bridge PRIVATE ${CONSTANT_INCLUDE_DIR})
+
     set(MODULE_TARGET_NAME mohses_tcp_bridge ) 
-    set(MODULE_ARGUMENTS " --configs=${MOHSES_RUNTIME_DIR}/config")
+    set(MODULE_ARGUMENTS " --configs=${MOHSES_RESOURCE_DIR}/config")
     install(TARGETS ${MODULE_TARGET_NAME} RUNTIME DESTINATION bin)
     if(NOT WIN32)
       configure_file(${CMAKE_SOURCE_DIR}/etc/supervisor/module.conf.in
                      ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf @ONLY)
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf 
-              DESTINATION  ${MOHSES_CONFIG_DIR})
+              DESTINATION  ${MOHSES_SUPERVISOR_DIR})
     else()
        target_compile_definitions(${MODULE_TARGET_NAME} PRIVATE BOOST_UUID_FORCE_AUTO_LINK )
     endif()
     install(DIRECTORY config
-                DESTINATION  ${MOHSES_RUNTIME_DIR})
+                DESTINATION  ${MOHSES_RESOURCE_DIR})
 
 
 endif(MOHSES_BUILD_TCP_BRIDGE)

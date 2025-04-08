@@ -1,0 +1,16 @@
+#pragma once
+
+#include <string>
+
+constexpr std::string_view MOHSES_USERNAME    = "@MOHSES_USERNAME@";
+constexpr std::string_view MOHSES_RUNTIME_DIR = "@MOHSES_RUNTIME_DIR@";  
+constexpr std::string_view MOHSES_RESOURCE_DIR = "@MOHSES_RESOURCE_DIR@";  
+constexpr std::string_view MOHSES_SUPERVISOR_DIR= "@MOHSES_SUPERVISOR_DIR@";
+constexpr std::string_view MOHSES_LOGGING_DIR = "@MOHSES_LOGGING_DIR@";
+
+enum class ExecutionErrors{
+ NONE = 0,
+ FILESYSTEM,
+ ARGUMENTS,
+ UNKNOWN,
+};

@@ -14,13 +14,19 @@ constexpr char const * module_manager_capabilities = "/module_manager_capabiliti
 
 namespace AMM {
     ModuleManager::ModuleManager(std::string dds_config_path) {
+<<<<<<< HEAD
          std::string resource_path = dds_config_path;
          if ( !std::filesystem::exists( resource_path + module_manager_amm )){
            resource_path += "config";
+=======
+         std::string resourcePath = dds_config_path;
+         if ( !std::filesystem::exists( resourcePath + module_manager_amm )){
+           resourcePath += "/config";
+>>>>>>> 2954734 (Updated Modules to Respect installation directories for looking for configurations)
          }
-         m_mgr = new DDSManager<ModuleManager>( resource_path + module_manager_amm );
-         m_DDS_Configuration = Utility::read_file_to_string( resource_path + module_manager_configuration );
-         m_DDS_Capabilities  = Utility::read_file_to_string( resource_path + module_manager_capabilities );
+         m_mgr = new DDSManager<ModuleManager>( resourcePath + module_manager_amm );
+         m_DDS_Configuration = Utility::read_file_to_string( resourcePath + module_manager_configuration );
+         m_DDS_Capabilities  = Utility::read_file_to_string( resourcePath + module_manager_capabilities );
         
 
         // Initialize everything we'll need to listen for
@@ -124,7 +130,7 @@ namespace AMM {
         std::string module_guid = ExtractGUIDToString(info->sample_identity.writer_guid());
 
         sqlite_config config;
-        database db("amm.db", config);
+        database db(resourcePath + "/amm.db", config);
         m_mapmutex.lock();
         try {
             db
@@ -448,7 +454,7 @@ namespace AMM {
                 } else {
                     LOG_INFO << " Scene is " << currentScenario;
                 }
-                ParseScenarioFromFile("static/scenarios/" + currentScenario + ".xml");
+                ParseScenarioFromFile(resourcePath + "/scenarios/" + currentScenario + ".xml");
             } else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
                 currentState = value.substr(loadStatePrefix.size());
             } else {
