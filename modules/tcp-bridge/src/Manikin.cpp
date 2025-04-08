@@ -1,6 +1,8 @@
 
 #include "Manikin.h"
 
+#include <constants.h>
+#include <filesystem>
 using namespace std;
 using namespace std::chrono;
 using namespace AMM;
@@ -8,8 +10,12 @@ using namespace tinyxml2;
 
 namespace bp = boost::process;
 
+/// This module's path to the config file.
+constexpr char const * tcp_bridge_amm = "/tcp_bridge_ajams.xml";
+constexpr char const * tcp_bridge_configuration = "/tcp_bridge_configuration.xml";
+constexpr char const * tcp_bridge_capabilities = "/tcp_bridge_capabilities.xml"; 
 
-Manikin::Manikin(std::string mid, bool pm, std::string pid) {
+Manikin::Manikin(std::string const& mid, std::string const& resource_path, bool pm, std::string pid) {
    parentId = pid;
    podMode = pm;
    manikin_id = mid;
@@ -18,7 +24,15 @@ Manikin::Manikin(std::string mid, bool pm, std::string pid) {
    if (podMode) {
       LOG_INFO << "\tCurrently in POD/TPMS mode.";
    }
-   mgr = new DDSManager<Manikin>(config_file, manikin_id);
+   mohses_resource_path = resource_path;
+   if ( !std::filesystem::exists( mohses_resource_path + tcp_bridge_amm )){
+     mohses_resource_path += "/config";
+     if ( !std::filesystem::exists( mohses_resource_path + tcp_bridge_amm )){
+       std::cout << "Unable to find " << tcp_bridge_amm << " in " << mohses_resource_path << "Falling back to config/" << std::endl;
+       mohses_resource_path = "config";
+     }
+   }
+   mgr = new DDSManager<Manikin>(mohses_resource_path + tcp_bridge_amm, manikin_id);
 
    mgr->InitializeCommand();
    mgr->InitializeInstrumentData();
@@ -1184,7 +1198,7 @@ void Manikin::PublishOperationalDescription() {
    od.serial_number("1.0.0");
    od.module_id(m_uuid);
    od.module_version("1.0.0");
-   const std::string capabilities = AMM::Utility::read_file_to_string("config/tcp_bridge_capabilities.xml");
+   const std::string capabilities = AMM::Utility::read_file_to_string(mohses_resource_path + tcp_bridge_capabilities);
    od.capabilities_schema(capabilities);
    od.description();
    mgr->WriteOperationalDescription(od);
@@ -1196,7 +1210,7 @@ void Manikin::PublishConfiguration() {
    mc.timestamp(ms);
    mc.module_id(m_uuid);
    mc.name(moduleName);
-   const std::string configuration = AMM::Utility::read_file_to_string("config/tcp_bridge_configuration.xml");
+   const std::string configuration = AMM::Utility::read_file_to_string(mohses_resource_path + tcp_bridge_configuration);
    mc.capabilities_configuration(configuration);
    mgr->WriteModuleConfiguration(mc);
 }

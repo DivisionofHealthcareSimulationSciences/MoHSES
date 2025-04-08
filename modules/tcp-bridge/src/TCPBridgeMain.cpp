@@ -84,7 +84,7 @@ std::string const sysPrefix = "[SYS]";
 std::string const actPrefix = "[ACT]";
 std::string const loadPrefix = "LOAD_STATE:";
 
-TPMS pod;
+std::unique_ptr<TPMS> pod;
 
 std::string ExtractManikinIDFromString(std::string in) {
    std::size_t pos = in.find("mid=");
@@ -160,7 +160,7 @@ void* Server::HandleClient(void* args) {
          m << ";client_status=" << gc.client_status;
          m << ";connect_time=" << gc.connect_time;
 
-         auto tmgr = pod.GetManikin(DEFAULT_MANIKIN_ID);
+         auto tmgr = pod->GetManikin(DEFAULT_MANIKIN_ID);
          if (tmgr == NULL) {
             LOG_WARNING << "Can't send disconnection update to manikin.";
          }
@@ -210,7 +210,7 @@ void* Server::HandleClient(void* args) {
                }
                std::string requestManikin = ExtractManikinIDFromString(str);
 
-               auto tmgr = pod.GetManikin(requestManikin);
+               auto tmgr = pod->GetManikin(requestManikin);
                if (tmgr == NULL && !requestManikin.empty()) {
                   LOG_ERROR << "Message: " << str << " (" << str.size() << ")";
                   LOG_ERROR << " dispatched to manikin that has not been instantied: " << requestManikin;
@@ -570,7 +570,9 @@ int main(int argc, const char* argv[]) {
       ("pod_mode", po::value(&config.podMode)->default_value(false), "POD mode")
       ("manikin_id", po::value(&config.manikinId)->default_value("manikin_1"), "Manikin ID")
       ("manikins", po::value(&config.manikinCount)->default_value(1))
-      ("core_id", po::value(&config.coreId)->default_value("AMM_000"), "Core ID");
+      ("core_id", po::value(&config.coreId)->default_value("AMM_000"), "Core ID")
+      ("configs", po::value<std::string>(), "Path to required resource files")
+      ("directory,-C", po::value<std::string>(), "Path to required resource files");
 
 
    // This isn't set to enforce it, but there are two modes of operation
@@ -594,19 +596,33 @@ int main(int argc, const char* argv[]) {
       std::cerr << desc << "\n";
       return 1;
    }
+   if (vm.count("configs")) {
+       config.dds_directory= vm["configs"].as<std::string>();
+   }
+   if (vm.count("directory")) {
+       config.runtime_directory = vm["directory"].as<std::string>();
+       try {
+         std::filesystem::current_path(config.runtime_directory);
+       } catch ( std::filesystem::filesystem_error ) {
+            std::cerr << "Unable to change directory to " << config.runtime_directory                           << "given by option -C ";
+            exit(static_cast<int>(ExecutionErrors::FILESYSTEM));
+       }
+   }
+
+   pod = std::make_unique<TPMS>(config.runtime_directory);
 
    DEFAULT_MANIKIN_ID = config.manikinId;
    CORE_ID = config.coreId;
 
    LOG_INFO << "=== [AMM - TCP Bridge] ===";
    try {
-      pod.SetID(config.manikinId);
-      pod.SetMode(config.podMode);
+      pod->SetID(config.manikinId);
+      pod->SetMode(config.podMode);
       if (config.podMode) {
-         pod.InitializeManikins(config.manikinCount);
+         pod->InitializeManikins(config.manikinCount);
       }
       else {
-         pod.InitializeManikin(config.manikinId);
+         pod->InitializeManikin(config.manikinId);
       }
 
    }

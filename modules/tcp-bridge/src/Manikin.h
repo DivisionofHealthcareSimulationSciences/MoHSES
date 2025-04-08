@@ -21,7 +21,6 @@ class Manikin : ListenerInterface {
 
 protected:
     const std::string moduleName = "AMM_TCP_Bridge";
-    const std::string config_file = "config/tcp_bridge_ajams.xml";
 
     std::map <std::string, AMM::EventRecord> eventRecords;
     std::string manikin_id;
@@ -58,7 +57,7 @@ protected:
     };
 
 public:
-    Manikin(std::string mid, bool mode, std::string parentId);
+    Manikin(std::string const& mid, std::string const& resource_path, bool mode, std::string parentId);
 
     void SetServer(Server* srv);
 
@@ -66,7 +65,8 @@ public:
 
     bool podMode = false;
 
-    AMM::DDSManager <Manikin> *mgr;
+    AMM::DDSManager <Manikin> *mgr = nullptr;
+    std::string mohses_resource_path;
 
     std::string ExtractServiceFromCommand(std::string in);
     std::string ExtractType(std::string in);

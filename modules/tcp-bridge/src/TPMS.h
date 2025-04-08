@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 #include "Manikin.h"
 
@@ -7,7 +8,7 @@
 class TPMS {
 
 public:
-    TPMS();
+    TPMS(std::string const& mohses_resource_dir);
 
     ~TPMS();
 
@@ -26,6 +27,7 @@ public:
     Manikin* mgr4;
 
     bool mode;
-
+private: 
+    std::string mohses_resource_path;
 };
 

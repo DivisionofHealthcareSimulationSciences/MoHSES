@@ -22,7 +22,10 @@ namespace AMM {
          std::string resourcePath = dds_config_path;
          if ( !std::filesystem::exists( resourcePath + module_manager_amm )){
            resourcePath += "/config";
->>>>>>> 2954734 (Updated Modules to Respect installation directories for looking for configurations)
+           if ( !std::filesystem::exists( resourcePath + module_manager_amm )){
+             std::cout << "Unable to find " << module_manager_amm << " in " << resourcePath << "Falling back to config/" << std::endl;
+             resourcePath = "config";
+           }
          }
          m_mgr = new DDSManager<ModuleManager>( resourcePath + module_manager_amm );
          m_DDS_Configuration = Utility::read_file_to_string( resourcePath + module_manager_configuration );

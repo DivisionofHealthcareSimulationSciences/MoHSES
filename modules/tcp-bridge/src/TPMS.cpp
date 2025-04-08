@@ -1,6 +1,8 @@
 #include "TPMS.h"
 
-TPMS::TPMS() {
+TPMS::TPMS(std::string const& mohses_resource_dir):
+mohses_resource_path(mohses_resource_dir)
+{
 
 }
 
@@ -18,13 +20,13 @@ void TPMS::SetMode(bool podMode) {
 
 void TPMS::InitializeManikin(std::string manikinId) {
     if (manikinId == "manikin_1") {
-        mgr1 = new Manikin("manikin_1", mode, myID);
+        mgr1 = new Manikin("manikin_1", mohses_resource_path, mode, myID);
     } else if (manikinId == "manikin_2") {
-        mgr2 = new Manikin("manikin_2", mode, myID);
+        mgr2 = new Manikin("manikin_2", mohses_resource_path, mode, myID);
     } else if (manikinId == "manikin_3") {
-        mgr3 = new Manikin("manikin_3", mode, myID);
+        mgr3 = new Manikin("manikin_3", mohses_resource_path, mode, myID);
     } else if (manikinId == "manikin_4") {
-        mgr4 = new Manikin("manikin_4", mode, myID);
+        mgr4 = new Manikin("manikin_4", mohses_resource_path, mode, myID);
     }
 
 }
