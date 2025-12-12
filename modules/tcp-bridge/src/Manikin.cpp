@@ -28,7 +28,7 @@ Manikin::Manikin(std::string const& mid, std::string const& resource_path, bool 
    if ( !std::filesystem::exists( mohses_resource_path + tcp_bridge_amm )){
      mohses_resource_path += "/config";
      if ( !std::filesystem::exists( mohses_resource_path + tcp_bridge_amm )){
-       std::cout << "Unable to find " << tcp_bridge_amm << " in " << mohses_resource_path << "Falling back to config/" << std::endl;
+       std::cout << "Unable to find " << tcp_bridge_amm << " in " << mohses_resource_path << " Falling back to config/" << std::endl;
        mohses_resource_path = "config";
      }
    }

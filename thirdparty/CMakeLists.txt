@@ -274,7 +274,7 @@ if (MOHSES_FORCE_THIRDPARTY_BUILD)
    option(MOHSES_FORCE_ZLIB_BUILD "Force build zlib when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
 
    if(NOT MSVC)
-      option(MOHSES_FORCE_PISTACE_BUILD "Force build pistache when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+      option(MOHSES_FORCE_PISTACHE_BUILD "Force build pistache when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
    endif()
 endif()
 
@@ -634,7 +634,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
   
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meson_config.in ${CMAKE_CURRENT_BINARY_DIR}/pistache/meson.conf @ONLY)
 
-    set(MENSON_CROSS_FILE_ARGS  --cross-file ${CMAKE_CURRENT_BINARY_DIR}/pistache/meson.conf )
+    set(MESON_CROSS_FILE_ARGS  --cross-file ${CMAKE_CURRENT_BINARY_DIR}/pistache/meson.conf )
     set(MESON_PKG_PATH_ARGS     --pkg-config-path=/home/sawhite/usr/${CMAKE_TOOLCHAIN_NAME}/lib/pkgconfig:/usr/lib/${CMAKE_TOOLCHAIN_NAME}/pkgconfig/ )
 
     ExternalProject_Add( 
@@ -647,7 +647,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
       STAMP_DIR    "${CMAKE_CURRENT_BINARY_DIR}/pistache/stamps"
       LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/pistache/logs"
       GIT_REPOSITORY "https://github.com/pistacheio/pistache.git"
-      GIT_TAG "master"
+      GIT_TAG "a68ad0902d2cfc23f69fc16e26747ac77bc2f123"
       GIT_PROGRESS ON
       GIT_SHALLOW  OFF
       USES_TERMINAL_DOWNLOAD ON
@@ -660,7 +660,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
         -DPISTACHE_BUILD_EXAMPLES=false
         -DPISTACHE_BUILD_TESTS=false
         -DPISTACHE_BUILD_DOCS=false
-        -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true
+        #-DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true
         --prefix=${ABSOLUTE_INSTALL_PREFIX}
         ${MESON_PKG_PATH_ARGS}
         --cmake-prefix-path=${ABSOLUTE_INSTALL_PREFIX}
@@ -691,7 +691,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
        "\t\tSTAMP_DIR    \"${CMAKE_CURRENT_BINARY_DIR}/pistache/stamps/\" \n"
        "\t\tLOG_DIR      \"${CMAKE_CURRENT_BINARY_DIR}/pistache/logs/\" \n"
        "\t\tGIT_REPOSITORY https://github.com/pistacheio/pistache.git \n"
-       "\t\tGIT_TAG master \n"
+       "\t\tGIT_TAG a68ad09 \n"
        "\t\tCMAKE_ARGS\n"
        "\t\tCONFIGURE_COMMAND\n"
        "\t\t    meson setup\n"
@@ -700,7 +700,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
        "\t\t    -DPISTACHE_BUILD_EXAMPLES=false\n"
        "\t\t    -DPISTACHE_BUILD_TESTS=false\n"
        "\t\t    -DPISTACHE_BUILD_DOCS=false\n"
-       "\t\t    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true\n"
+       "\t\t    #-DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true\n"
        "\t\t    --prefix=\"${ABSOLUTE_INSTALL_PREFIX}\"\n"
        "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
        "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/\n"
@@ -710,7 +710,7 @@ if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_F
        "\t\t    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
     )
     else()
-      message(ERROR "Meson build system not found.  Pistache requires meson to be installed")
+      message(ERROR "Meson build system not found. Pistache requires meson to be installed")
     endif()
   endif()
 endif()

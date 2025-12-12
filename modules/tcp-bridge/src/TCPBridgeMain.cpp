@@ -19,12 +19,7 @@
 #include <cstddef>
 #include <sys/types.h>
 
-enum class ExecutionErrors {
-   NONE = 0,
-   FILESYSTEM,
-   ARGUMENTS,
-   UNKNOWN,
-};
+#include <constants.h>
 
 struct Configuration {
    bool closed = false;
@@ -36,8 +31,8 @@ struct Configuration {
    std::string coreId;
    std::string manikinId = DEFAULT_MANIKIN_ID;
 
-   std::string runtime_directory = "";
-   std::string dds_directory = "./";
+   std::string runtime_directory{MOHSES_RUNTIME_DIR};
+   std::string dds_directory{MOHSES_RESOURCE_DIR};
 } config;
 
 
@@ -609,7 +604,7 @@ int main(int argc, const char* argv[]) {
        }
    }
 
-   pod = std::make_unique<TPMS>(config.runtime_directory);
+   pod = std::make_unique<TPMS>(config.dds_directory);
 
    DEFAULT_MANIKIN_ID = config.manikinId;
    CORE_ID = config.coreId;
