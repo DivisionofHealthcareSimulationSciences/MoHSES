@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include <biogears/BiogearsEnums.h>
+
 using namespace biogears;
 
 /// This module's path to the config file.
@@ -48,24 +50,24 @@ public:
    * @param active check if we are logigng
    * @param time BioGears engine time, can be used for future logging
    */
-  virtual void HandleAnesthesiaMachineEvent(CDM::enumAnesthesiaMachineEvent::value type, bool active,
+  virtual void HandleAnesthesiaMachineEvent(biogears::SEAnesthesiaMachineEvent type, bool active,
                                             const SEScalarTime* time = nullptr) { }
 
-  virtual void HandlePatientEvent(CDM::enumPatientEvent::value type, bool active, const SEScalarTime* time = nullptr)
+  virtual void HandlePatientEvent(biogears::SEPatientEventType type, bool active, const SEScalarTime* time = nullptr)
   {
     if (active) {
       switch (type) {
-      case CDM::enumPatientEvent::IrreversibleState:
+      case biogears::SEPatientEventType::IrreversibleState:
         LOG_INFO << " Patient has entered irreversible state";
         irreversible = true;
         break;
-      case CDM::enumPatientEvent::StartOfCardiacCycle:
+      case biogears::SEPatientEventType::StartOfCardiacCycle:
         break;
-      case CDM::enumPatientEvent::StartOfExhale:
+      case biogears::SEPatientEventType::StartOfExhale:
         startOfExhale = true;
         startOfInhale = false;
         break;
-      case CDM::enumPatientEvent::StartOfInhale:
+      case biogears::SEPatientEventType::StartOfInhale:
         startOfInhale = true;
         startOfExhale = false;
         break;
@@ -75,12 +77,12 @@ public:
       }
     } else {
       switch (type) {
-      case CDM::enumPatientEvent::StartOfCardiacCycle:
+      case biogears::SEPatientEventType::StartOfCardiacCycle:
         break;
-      case CDM::enumPatientEvent::StartOfExhale:
+      case biogears::SEPatientEventType::StartOfExhale:
         startOfExhale = false;
         break;
-      case CDM::enumPatientEvent::StartOfInhale:
+      case biogears::SEPatientEventType::StartOfInhale:
         startOfInhale = false;
         break;
       default:
@@ -706,7 +708,7 @@ bool BiogearsThread::BioGearsLogging()
   fs.open(logFilename, std::ios::out);
   fs.close();
 
-  m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
+  m_pe->GetEngineTrack()->GetDataRequestManager().Invalidate();
   m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
     "HeartRate", biogears::FrequencyUnit::Per_min);
   m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
@@ -899,7 +901,7 @@ double BiogearsThread::GetRespirationRate()
 {
   double rr;
   double loss = GetBloodLossPercentage();
-  if (m_pe->GetAnesthesiaMachine()->HasConnection() && m_pe->GetAnesthesiaMachine()->GetConnection() != CDM::enumAnesthesiaMachineConnection::Off) {
+  if (m_pe->GetAnesthesiaMachine()->HasConnection() && m_pe->GetAnesthesiaMachine()->GetConnection() != biogears::SEAnesthesiaMachineConnection::Off) {
     rr = rawRespirationRate;
   } else if (loss > 0.0) {
     rr = rawRespirationRate * (1 + 3 * std::max(0.0, loss - 0.2));
@@ -1490,7 +1492,7 @@ void BiogearsThread::SetIVPump(const std::string& pumpSettings)
       }
 
       // IV pump only uses IV administration for right now
-      bolus.SetAdminRoute(CDM::enumBolusAdministration::Intravenous);
+      bolus.SetAdminRoute(biogears::SEBolusAdministration::Intravenous);
 
       m_pe->ProcessAction(bolus);
     }
@@ -1600,14 +1602,14 @@ void BiogearsThread::SetSubstanceBolus(const std::string& substance, double conc
       bolus.GetDose().SetValue(dose, biogears::VolumeUnit::uL);
     }
 
-    CDM::enumBolusAdministration aRoute;
+    biogears::SEBolusAdministration aRoute;
     std::string lAR = boost::algorithm::to_lower_copy(adminRoute);
     if (lAR == "intraarterial") {
-      aRoute = CDM::enumBolusAdministration::Intraarterial;
+      aRoute = biogears::SEBolusAdministration::Intraarterial;
     } else if (lAR == "intramuscular") {
-      aRoute = CDM::enumBolusAdministration::Intramuscular;
+      aRoute = biogears::SEBolusAdministration::Intramuscular;
     } else {
-      aRoute = CDM::enumBolusAdministration::Intravenous;
+      aRoute = biogears::SEBolusAdministration::Intravenous;
     }
 
     bolus.SetAdminRoute(aRoute);
@@ -1629,14 +1631,14 @@ void BiogearsThread::SetTensionPneumothorax(const std::string& type, const std::
   try {
     biogears::SETensionPneumothorax pneumo;
     if (type == "Open") {
-      pneumo.SetType(CDM::enumPneumothoraxType::Open);
+      pneumo.SetType(biogears::SEPneumothoraxType::Open);
     } else if (type == "Closed") {
-      pneumo.SetType(CDM::enumPneumothoraxType::Closed);
+      pneumo.SetType(biogears::SEPneumothoraxType::Closed);
     }
     if (side == "Left") {
-      pneumo.SetSide(CDM::enumSide::Left);
+      pneumo.SetSide(biogears::SESide::Left);
     } else if (side == "Right") {
-      pneumo.SetSide(CDM::enumSide::Right);
+      pneumo.SetSide(biogears::SESide::Right);
     }
     pneumo.GetSeverity().SetValue(severity);
     m_pe->ProcessAction(pneumo);
@@ -1654,9 +1656,9 @@ void BiogearsThread::SetChestOcclusiveDressing(const std::string& state, const s
       dressing.SetActive(false);
     }
     if (side == "Left") {
-      dressing.SetSide(CDM::enumSide::Left);
+      dressing.SetSide(biogears::SESide::Left);
     } else if (side == "Right") {
-      dressing.SetSide(CDM::enumSide::Right);
+      dressing.SetSide(biogears::SESide::Right);
     }
 
     m_pe->ProcessAction(dressing);
@@ -1692,11 +1694,11 @@ void BiogearsThread::SetBrainInjury(double severity, const std::string& type)
   try {
     SEBrainInjury tbi;
     if (type == "Diffuse") {
-      tbi.SetType(CDM::enumBrainInjuryType::Diffuse);
+      tbi.SetType(biogears::SEBrainInjuryType::Diffuse);
     } else if (type == "LeftFocal") {
-      tbi.SetType(CDM::enumBrainInjuryType::LeftFocal);
+      tbi.SetType(biogears::SEBrainInjuryType::LeftFocal);
     } else if (type == "RightFocal") {
-      tbi.SetType(CDM::enumBrainInjuryType::RightFocal);
+      tbi.SetType(biogears::SEBrainInjuryType::RightFocal);
     }
     tbi.GetSeverity().SetValue(severity);
     m_pe->ProcessAction(tbi);
@@ -1733,9 +1735,9 @@ void BiogearsThread::SetNeedleDecompression(const std::string& state, const std:
       ncd.SetActive(false);
     }
     if (side == "Left") {
-      ncd.SetSide(CDM::enumSide::Left);
+      ncd.SetSide(biogears::SESide::Left);
     } else if (side == "Right") {
-      ncd.SetSide(CDM::enumSide::Right);
+      ncd.SetSide(biogears::SESide::Right);
     }
 
     m_pe->ProcessAction(ncd);
@@ -1783,9 +1785,9 @@ void BiogearsThread::SetVentilator(const std::string& ventilatorSettings)
   biogears::SEAnesthesiaMachine& config = AMConfig.GetConfiguration();
 
   config.GetInletFlow().SetValue(2.0, biogears::VolumePerTimeUnit::L_Per_min);
-  config.SetPrimaryGas(CDM::enumAnesthesiaMachinePrimaryGas::Nitrogen);
-  config.SetConnection(CDM::enumAnesthesiaMachineConnection::Tube);
-  config.SetOxygenSource(CDM::enumAnesthesiaMachineOxygenSource::Wall);
+  config.SetPrimaryGas(biogears::SEAnesthesiaMachinePrimaryGas::Nitrogen);
+  config.SetConnection(biogears::SEAnesthesiaMachineConnection::Tube);
+  config.SetOxygenSource(biogears::SEAnesthesiaMachineOxygenSource::Wall);
   config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
   for (auto str : strings) {
@@ -1838,9 +1840,9 @@ void BiogearsThread::SetBVMMask(const std::string& ventilatorSettings)
   biogears::SEAnesthesiaMachine& config = AMConfig.GetConfiguration();
 
   config.GetInletFlow().SetValue(2.0, biogears::VolumePerTimeUnit::L_Per_min);
-  config.SetPrimaryGas(CDM::enumAnesthesiaMachinePrimaryGas::Air);
-  config.SetConnection(CDM::enumAnesthesiaMachineConnection::Mask);
-  config.SetOxygenSource(CDM::enumAnesthesiaMachineOxygenSource::Wall);
+  config.SetPrimaryGas(biogears::SEAnesthesiaMachinePrimaryGas::Air);
+  config.SetConnection(biogears::SEAnesthesiaMachineConnection::Mask);
+  config.SetOxygenSource(biogears::SEAnesthesiaMachineOxygenSource::Wall);
   config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
   for (auto str : strings) {
@@ -1992,7 +1994,7 @@ double BiogearsThread::GetPatientWeight()
 
 double BiogearsThread::GetPatientGender()
 {
-  // CDM::enumSex::value gender = m_pe->GetPatient().GetGender();
+  // biogears::SESex gender = m_pe->GetPatient().GetGender();
   return 0;
 }
 

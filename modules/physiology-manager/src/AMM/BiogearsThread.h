@@ -40,7 +40,6 @@
 
 #include <biogears/cdm/system/physiology/SERenalSystem.h>
 
-#include <biogears/cdm/Serializer.h>
 #include <biogears/cdm/engine/PhysiologyEngineTrack.h>
 #include <biogears/cdm/properties/SEScalarTime.h>
 #include <biogears/cdm/scenario/SEAdvanceTime.h>
